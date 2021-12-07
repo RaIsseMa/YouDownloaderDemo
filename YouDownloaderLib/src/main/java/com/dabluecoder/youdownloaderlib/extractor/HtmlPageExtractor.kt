@@ -29,6 +29,7 @@ class HtmlPageExtractor() {
     private fun loadPage() {
         doc = Jsoup
             .connect("${Constants.REQUEST_PAGE_URL}${extractVideoIdFromUrl()}${Constants.REQUEST_PAGE_PARAMETERS}")
+            .userAgent(Constants.USER_AGENT)
             .get()
     }
 
@@ -39,7 +40,7 @@ class HtmlPageExtractor() {
         )
     }
 
-    public fun extractVideoResponseJson(): VideoResponse? {
+    fun extractVideoResponseJson(): VideoResponse? {
 
         if(doc == null)
             loadPage()
@@ -64,7 +65,7 @@ class HtmlPageExtractor() {
         throw Exception("Document is null")
     }
 
-    public fun extractPlayerJsUrl() : String{
+    fun extractPlayerJsUrl() : String{
 
         if(doc == null)
             loadPage()
@@ -82,7 +83,7 @@ class HtmlPageExtractor() {
                     element.attr("src")
                 }[0]
 
-            return "https://www.youtube.com$player"
+            return player
 
         }
         throw Exception("Document is null")

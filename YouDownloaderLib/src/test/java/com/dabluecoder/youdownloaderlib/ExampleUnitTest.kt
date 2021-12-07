@@ -16,6 +16,7 @@ class ExampleUnitTest {
 
         val client = YouClient()
         val videoInfo = client.getVideoInfo("https://www.youtube.com/watch?v=VDvr08sCPOc")
+        client.getFunctions()
 
         assertEquals("VDvr08sCPOc", videoInfo.videoDetails.videoId)
     }

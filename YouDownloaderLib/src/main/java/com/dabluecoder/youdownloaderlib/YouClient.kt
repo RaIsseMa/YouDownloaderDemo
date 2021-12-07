@@ -2,9 +2,9 @@ package com.dabluecoder.youdownloaderlib
 
 import android.text.Html
 import com.dabluecoder.youdownloaderlib.extractor.HtmlPageExtractor
+import com.dabluecoder.youdownloaderlib.extractor.JSExtractor
 import com.dabluecoder.youdownloaderlib.pojoclasses.VideoResponse
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+
 
 class YouClient {
 
@@ -23,6 +23,13 @@ class YouClient {
 
     }
 
+    public fun getFunctions(){
+        getPlayerJs()
+        val jsExtractor = JSExtractor()
+        jsExtractor.playerUrl = playerJsUrl!!
+        jsExtractor.getPlayerJSRaw()
+    }
+
     private fun getPlayerJs(){
         playerJsUrl = extractor!!.extractPlayerJsUrl()
     }
@@ -31,5 +38,6 @@ class YouClient {
         if (extractor == null)
             extractor = HtmlPageExtractor()
     }
+
 
 }
