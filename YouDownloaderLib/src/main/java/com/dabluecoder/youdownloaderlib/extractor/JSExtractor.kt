@@ -39,13 +39,20 @@ class JSExtractor {
         val decodeFunctionsNames = mutableListOf<String>()
         val separatedFunctions = funCode.split(";")
 
-        separatedFunctions.forEach{
-            val name = Regex("(?<=\\.)([A-Za-z]*)").find(it)?.value ?: return
-            if(!name.contains("split") && !name.contains("join") && !decodeFunctionsNames.contains(name.substring(0)))
-                decodeFunctionsNames.add(name.substring(0))
+        separatedFunctions.forEach{ slice ->
+            val functionName = Regex("(?<=\\.)([A-Za-z]*)").find(slice)?.value ?: return
+            functionName.let {
+                if(!it.contains("split") && !it.contains("join") && !decodeFunctionsNames.contains(it.substring(0)))
+                    decodeFunctionsNames.add(it.substring(0))
+            }
         }
-        decodeFunctionsNames.forEach {
-            print("fun name = $it")
-        }
+
+        val objectName = Regex("([A-Za-z]*)(?=\\.)").find(funCode.split(";")[1])?.groupValues?.get(0)
+        println("object name = $objectName")
+
+        val decodeFunctions = Regex("(?s)var\\s+${objectName}=\\{(\\w+:function\\(\\w+(,\\w+)?\\)\\{(.*?)\\}),?\\};")
+            .find(input)?.value
+
+        print("decode functions = $decodeFunctions")
     }
 }
