@@ -1,6 +1,7 @@
 package com.dabluecoder.youdownloaderlib
 
 import android.text.Html
+import com.dabluecoder.youdownloaderlib.decoders.DecoderClient
 import com.dabluecoder.youdownloaderlib.extractor.HtmlPageExtractor
 import com.dabluecoder.youdownloaderlib.extractor.JSExtractor
 import com.dabluecoder.youdownloaderlib.pojoclasses.VideoResponse
@@ -23,11 +24,13 @@ class YouClient {
 
     }
 
-    public fun getFunctions(){
+    fun decodeVideoUrl(signatureCipher : String){
         getPlayerJs()
         val jsExtractor = JSExtractor()
         jsExtractor.playerUrl = playerJsUrl!!
-        jsExtractor.getPlayerJSRaw()
+        val decodeOperations = jsExtractor.getDecodeOperationsFromPlayerJS()
+        val decoderClient = DecoderClient()
+        print("url = "+decoderClient.decodeSignature(signatureCipher,decodeOperations))
     }
 
     private fun getPlayerJs(){

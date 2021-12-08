@@ -16,7 +16,7 @@ class ExampleUnitTest {
 
         val client = YouClient()
         val videoInfo = client.getVideoInfo("https://www.youtube.com/watch?v=VDvr08sCPOc")
-        client.getFunctions()
+        client.decodeVideoUrl(videoInfo.streamingData.mixedFormats[0].signatureCipher)
 
         assertEquals("VDvr08sCPOc", videoInfo.videoDetails.videoId)
     }
