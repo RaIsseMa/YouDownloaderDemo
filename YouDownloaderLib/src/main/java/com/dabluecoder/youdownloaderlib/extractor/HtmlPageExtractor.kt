@@ -1,5 +1,6 @@
 package com.dabluecoder.youdownloaderlib.extractor
 
+import com.dabluecoder.youdownloaderlib.exceptions.InvalidUrlException
 import com.dabluecoder.youdownloaderlib.others.Constants
 import com.dabluecoder.youdownloaderlib.pojoclasses.VideoResponse
 import com.google.gson.Gson
@@ -21,7 +22,7 @@ class HtmlPageExtractor() {
         )
 
         if (videoId.length != 11 || videoId.isEmpty()) {
-            throw Exception("video url is not valid")
+            throw InvalidUrlException("video url is not valid")
         }
         return videoId
     }

@@ -13,8 +13,16 @@ class YouClient {
     private var playerJsUrl: String? = null
 
     private var extractor: HtmlPageExtractor? = null
+    private var listener : OnVideoInfoListener? = null
 
-    fun getVideoInfo(videoUrl: String): VideoResponse {
+    var videoUrl = ""
+
+    fun getVideoInfo(listener : OnVideoInfoListener): VideoResponse {
+
+        this.listener = listener
+
+        if(videoUrl.isEmpty())
+            this.listener?.onError("Video' url is undefined")
 
         initializeExtractorIfNull()
 
