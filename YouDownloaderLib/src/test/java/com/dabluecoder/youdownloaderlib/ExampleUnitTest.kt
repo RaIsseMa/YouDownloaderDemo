@@ -19,9 +19,11 @@ class ExampleUnitTest {
     fun extractPage() {
 
         val client = YouClient()
-        val videoInfo = client.getVideoInfo("https://www.youtube.com/watch?v=VDvr08sCPOc")
-        client.decodeVideoUrl(videoInfo.streamingData.adaptiveFormats[0].signatureCipher)
-
+        client.videoUrl = "https://www.youtube.com/watch?v=VDvr08sCPOc"
+        val videoInfo = client.getVideoInfo()
+        videoInfo.streamingData.adaptiveFormats.forEach{
+            println("url = ${it.url}")
+        }
 //        val decoder = DecoderClient()
 //        val operations = mutableListOf(
 //            ReverseOperation(),

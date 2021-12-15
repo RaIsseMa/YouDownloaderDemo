@@ -12,5 +12,6 @@ data class Formats(
     val fps: Int,
     val qualityLabel: String,
     val audioQuality: String,
-    val signatureCipher: String
+    val signatureCipher: String,
+    var url : String?
 )

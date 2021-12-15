@@ -8,12 +8,11 @@ import com.google.gson.reflect.TypeToken
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 
-class HtmlPageExtractor() {
+class HtmlPageExtractor(private val videoUrl : String) {
 
     private val TAG = "HtmlPageExtractor"
 
     private var doc: Document? = null
-    var videoUrl: String = ""
 
     private fun extractVideoIdFromUrl(): String {
         val videoId = videoUrl.substring(

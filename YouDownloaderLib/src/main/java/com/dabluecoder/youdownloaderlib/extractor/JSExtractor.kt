@@ -8,9 +8,7 @@ import com.dabluecoder.youdownloaderlib.others.Constants
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 
-class JSExtractor {
-
-    var playerUrl : String = ""
+class JSExtractor(private val playerUrl : String) {
 
     fun getDecodeOperationsFromPlayerJS(): List<DecodeOperation> {
 
@@ -39,16 +37,10 @@ class JSExtractor {
         val funCode = Regex("(\\w+)=function\\(\\w+\\)\\{(\\w+)=\\2\\.split\\(\\x22{2}\\);.*?return\\s+\\2\\.join\\(\\x22{2}\\)}")
             .find(input)?.value ?: throw Exception("Error to extract decode function")
 
-        println("main fun = $funCode")
-
-
         val objectName = Regex("([A-Za-z]*)(?=\\.)").find(funCode.split(";")[1])?.groupValues?.get(0)
-        println("object name = $objectName")
 
         val decodeFunctions = Regex("(?s)var\\s+${objectName}=\\{(\\w+:function\\(\\w+(,\\w+)?\\)\\{(.*?)}),?};")
             .find(input)?.value
-
-        println("decode functions : $decodeFunctions")
 
         val decodeOperations = mutableListOf<DecodeOperation>()
         val separatedFunctions = funCode.split(";")
@@ -59,9 +51,6 @@ class JSExtractor {
                 if(!it.contains("split") && !it.contains("join")){
                     val decodeFunctionDefinition = Regex("${it}:function\\(\\w+(,\\w+)?\\)\\{(.*?)}").find(decodeFunctions!!)?.value
                     val index = Regex("\\d+").find(slice)?.value
-
-                    println("decode function definition : $decodeFunctionDefinition")
-                    println("index = $index")
 
                     if(decodeFunctionDefinition==null || index == null)
                         return decodeOperations.toList()

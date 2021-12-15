@@ -10,45 +10,35 @@ import com.dabluecoder.youdownloaderlib.pojoclasses.VideoResponse
 class YouClient {
 
     private var videoInfo: VideoResponse? = null
-    private var playerJsUrl: String? = null
-
-    private var extractor: HtmlPageExtractor? = null
     private var listener : OnVideoInfoListener? = null
 
     var videoUrl = ""
 
-    fun getVideoInfo(listener : OnVideoInfoListener): VideoResponse {
+    fun getVideoInfo(): VideoResponse {
 
         this.listener = listener
 
         if(videoUrl.isEmpty())
             this.listener?.onError("Video' url is undefined")
 
-        initializeExtractorIfNull()
+        val extractor = HtmlPageExtractor(videoUrl)
 
-        extractor!!.videoUrl = videoUrl
-        videoInfo = extractor!!.extractVideoResponseJson()
+        videoInfo = extractor.extractVideoResponseJson()
+
+        val playerJsUrl = extractor.extractPlayerJsUrl()
+        val jsExtractor = JSExtractor(playerJsUrl)
+        val decodeOperations = jsExtractor.getDecodeOperationsFromPlayerJS()
+        val decoderClient = DecoderClient()
+        videoInfo!!.streamingData.adaptiveFormats.forEach { format ->
+            format.url = decoderClient.decodeSignature(
+                format.signatureCipher,
+                decodeOperations
+            )
+        }
         return videoInfo!!
 
     }
 
-    fun decodeVideoUrl(signatureCipher : String){
-        getPlayerJs()
-        val jsExtractor = JSExtractor()
-        jsExtractor.playerUrl = playerJsUrl!!
-        val decodeOperations = jsExtractor.getDecodeOperationsFromPlayerJS()
-        val decoderClient = DecoderClient()
-        print("url = "+decoderClient.decodeSignature(signatureCipher,decodeOperations))
-    }
-
-    private fun getPlayerJs(){
-        playerJsUrl = extractor!!.extractPlayerJsUrl()
-    }
-
-    private fun initializeExtractorIfNull(){
-        if (extractor == null)
-            extractor = HtmlPageExtractor()
-    }
 
 
 }
