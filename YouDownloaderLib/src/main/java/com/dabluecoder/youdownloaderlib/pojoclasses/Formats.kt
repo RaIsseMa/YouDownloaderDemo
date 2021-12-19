@@ -1,5 +1,7 @@
 package com.dabluecoder.youdownloaderlib.pojoclasses
 
+import com.google.gson.annotations.SerializedName
+
 
 data class Formats(
     val mimeType: String,
@@ -9,9 +11,9 @@ data class Formats(
     val lastModified: String,
     val contentLength: String,
     val quality: String,
-    val fps: Int,
-    val qualityLabel: String,
-    val audioQuality: String,
-    val signatureCipher: String,
-    var url : String?
+    val fps: Int?,
+    val qualityLabel: String?,
+    val audioQuality: String?,
+    val signatureCipher : String?,
+    var url: String?
 )

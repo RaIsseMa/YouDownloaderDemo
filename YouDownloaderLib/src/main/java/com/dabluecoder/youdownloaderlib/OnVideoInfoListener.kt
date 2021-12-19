@@ -4,7 +4,7 @@ import com.dabluecoder.youdownloaderlib.pojoclasses.VideoResponse
 
 interface OnVideoInfoListener {
 
-    fun onSuccess(videoInfo : VideoResponse)
+    fun onSuccess(videoInfo : VideoResponse) : Unit
 
-    fun onError(message : String)
+    fun onError(message : String) : Unit
 }

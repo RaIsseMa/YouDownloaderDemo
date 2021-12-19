@@ -18,17 +18,4 @@ class DecoderClient {
         return "${URLDecoder.decode(signatureQuery[2].substring(4),"utf-8")}&${signatureQuery[1].substring(3)}=$signatureEncoded"
     }
 
-    /*fun decodeSignature(signature : String,decodeOperations : List<DecodeOperation>): String {
-
-        var signatureEncoded = signature
-
-        decodeOperations.forEach { decodeOperation ->
-            println("decode operation = $decodeOperation")
-            signatureEncoded = decodeOperation.decode(signatureEncoded)
-        }
-
-        return signatureEncoded
-
-    }*/
-
 }

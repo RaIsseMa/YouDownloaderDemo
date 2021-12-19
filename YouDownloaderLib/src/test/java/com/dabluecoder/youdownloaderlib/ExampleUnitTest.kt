@@ -5,6 +5,7 @@ import com.dabluecoder.youdownloaderlib.decoders.ReverseOperation
 import com.dabluecoder.youdownloaderlib.decoders.SliceOperation
 import com.dabluecoder.youdownloaderlib.decoders.SwapOperation
 import com.dabluecoder.youdownloaderlib.extractor.HtmlPageExtractor
+import com.dabluecoder.youdownloaderlib.pojoclasses.VideoResponse
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -19,11 +20,25 @@ class ExampleUnitTest {
     fun extractPage() {
 
         val client = YouClient()
-        client.videoUrl = "https://www.youtube.com/watch?v=VDvr08sCPOc"
-        val videoInfo = client.getVideoInfo()
-        videoInfo.streamingData.adaptiveFormats.forEach{
-            println("url = ${it.url}")
-        }
+       client.videoUrl = "https://www.youtube.com/watch?v=VDvr08sCPOc"
+//        client.videoUrl = "ggg"
+//        client.videoUrl = "https://www.youtube.com/watch?v=SrBLTMs71x0&t=2s"
+        client.getVideoInfo (object : OnVideoInfoListener{
+            override fun onSuccess(videoInfo: VideoResponse) {
+                videoInfo.streamingData.adaptiveFormats?.forEach{
+                    println("video = ${it.qualityLabel}")
+                    println("url = ${it.url}")
+                    println("*****************************************************************************************")
+                }
+            }
+
+            override fun onError(message: String) {
+                println("Error : $message")
+            }
+
+        })
+
+
 //        val decoder = DecoderClient()
 //        val operations = mutableListOf(
 //            ReverseOperation(),
@@ -35,6 +50,6 @@ class ExampleUnitTest {
 //            operations
 //        )
 
-        assertEquals("VDvr08sCPOc",videoInfo.videoDetails.videoId)
+        assertEquals("VDvr08sCPOc","VDvr08sCPOc")
     }
 }
