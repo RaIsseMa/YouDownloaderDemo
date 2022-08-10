@@ -1,5 +1,6 @@
 package com.dabluecoder.youdownloaderlib.extractor
 
+import android.os.Looper
 import com.dabluecoder.youdownloaderlib.exceptions.InvalidUrlException
 import com.dabluecoder.youdownloaderlib.exceptions.NullDocumentException
 import com.dabluecoder.youdownloaderlib.exceptions.NullVideoInfoException
@@ -42,12 +43,14 @@ class HtmlPageExtractor(private val videoUrl : String) {
     }
 
     private fun loadPage() {
-        println("load page")
+        if(Looper.myLooper() == Looper.getMainLooper())
+            throw Exception("The code should not run in main thread")
+
         doc = Jsoup
             .connect("${Constants.REQUEST_PAGE_URL}${extractVideoIdFromUrl()}${Constants.REQUEST_PAGE_PARAMETERS}")
             .userAgent(Constants.USER_AGENT)
             .get()
-        println("page loaded")
+
     }
 
     private fun extractJsonBodyFromPage(page: String): String {
@@ -61,18 +64,17 @@ class HtmlPageExtractor(private val videoUrl : String) {
 
         if(doc == null)
             loadPage()
-        println("------------------------starting extracting json")
+
         doc?.let { contentPage ->
 
             val body = contentPage.getElementsByTag("body")
-            println("------------------------extracted body")
+
             val scripts = body[0].getElementsByTag("script")
                 .filter { element ->
                     element.html().contains("ytInitialPlayerResponse")
                 }.map { element ->
                     element.html()
                 }[0]
-            println("------------------------extracted scripts")
 
 
             if(scripts.isEmpty())

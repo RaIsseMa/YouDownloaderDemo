@@ -51,28 +51,16 @@ class JSExtractor(private val playerUrl : String) {
         val subInput = input.substring(startIndexOfDecodeFunction)
         val endIndexOfDecodeFunction = subInput.indexOf("}")
         val decodeFunction = input.substring(startIndexOfDecodeFunction,startIndexOfDecodeFunction+endIndexOfDecodeFunction)
-        println("_____________________________________ decode fun = $decodeFunction")
 
         val objectName = decodeFunction.substring(
             decodeFunction.indexOf(";")+1,
             decodeFunction.indexOf(";")+3
         )
-        println("_____________________________________ obj name = $objectName")
 
         val startIndexOfDecodeFunctionDefinitions = input.indexOf("$objectName={")
         val subInputDefinitions = input.substring(startIndexOfDecodeFunctionDefinitions)
         val endIndexOfDecodeFunctionDefinitions = subInputDefinitions.indexOf("}};")
         val decodeFunctionsDefinition = input.substring(startIndexOfDecodeFunctionDefinitions,startIndexOfDecodeFunctionDefinitions+endIndexOfDecodeFunctionDefinitions+1)
-        println("______________________ decod def = $decodeFunctionsDefinition")
-
-//        val funCode = Regex("(\\w+)=function\\(\\w+\\)\\{(\\w+)=\\2\\.split\\(\\x22{2}\\);.*?return\\s+\\2\\.join\\(\\x22{2}\\)}")
-//            .find(input)?.value ?: throw DecodeSignatureCipherException("Error to extract decode function")
-
-//        val objectName = Regex("([A-Za-z]*)(?=\\.)").find(funCode.split(";")[1])?.groupValues?.get(0) ?: throw DecodeSignatureCipherException("" +
-//                "Failed to extract object's name from decode function")
-
-//        val decodeFunctions = Regex("(?s)var\\s+${objectName}=\\{(\\w+:function\\(\\w+(,\\w+)?\\)\\{(.*?)}),?};")
-//            .find(input)?.value ?: throw DecodeSignatureCipherException("Failed to extract decode functions")
 
         val decodeOperations = mutableListOf<DecodeOperation>()
         val separatedFunctions = decodeFunction.split(";")
@@ -85,11 +73,8 @@ class JSExtractor(private val playerUrl : String) {
                     val startIndexOfDecodeFun = decodeFunctionsDefinition.indexOf(it)
 
                     val subDecodeFunctions = decodeFunctionsDefinition.substring(startIndexOfDecodeFun)
-                    println("_____________________ sub deco / $subDecodeFunctions")
                     val decodeFunctionDefinition = subDecodeFunctions.substring(0,subDecodeFunctions.indexOf("}"))
-                    println("________________ decode fun def / $decodeFunctionDefinition")
 
-                    //val decodeFunctionDefinition = Regex("${it}:function\\(\\w+(,\\w+)?\\)\\{(.*?)}").find(decodeFunctionsDefinition)?.value ?: throw DecodeSignatureCipherException("Failed to extract decode function's definition")
                     val index = Regex("(?<=,)\\d+").find(slice)?.value ?: throw DecodeSignatureCipherException("Failed to extract function index")
 
                     when{

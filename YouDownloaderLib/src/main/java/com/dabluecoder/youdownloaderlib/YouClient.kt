@@ -23,12 +23,12 @@ class YouClient {
             this.listener?.onError("Video url is undefined")
             return
         }
-        println("---------------------start")
+
         try {
             val extractor = HtmlPageExtractor(videoUrl)
 
             videoInfo = extractor.extractVideoResponseJson()
-            println("--------------video response json extracted")
+
             if (!areVideoSourcesEncoded()) {
 
                 videoInfo!!.streamingData.let {
@@ -44,12 +44,10 @@ class YouClient {
             }
 
             val playerJsUrl = extractor.extractPlayerJsUrl()
-            println("--------------player js url extracted = $playerJsUrl")
 
             val jsExtractor = JSExtractor(playerJsUrl)
 
             val decodeOperations = jsExtractor.getDecodeOperationsFromPlayerJS()
-            println("--------------decode operations extracted")
 
             decoderClient = DecoderClient()
             videoInfo!!.streamingData.let {
@@ -70,7 +68,7 @@ class YouClient {
             this.listener?.onSuccess(videoInfo!!)
 
         } catch (exp: Exception) {
-            this.listener?.onError("YouDownloader error = ${exp.message!!}")
+            this.listener?.onError("YouDownloader : ${exp.message!!}")
         }
 
     }
