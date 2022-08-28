@@ -73,6 +73,59 @@ class YouClient {
 
     }
 
+    fun getVideoInfo() : VideoResponse {
+        if (videoUrl.isEmpty()) {
+            throw Exception("Video url is undefined")
+        }
+
+        try {
+            val extractor = HtmlPageExtractor(videoUrl)
+
+            videoInfo = extractor.extractVideoResponseJson()
+
+            if (!areVideoSourcesEncoded()) {
+
+                videoInfo!!.streamingData.let {
+                    it.mixedFormats?.forEach { format ->
+                        format.url = format.url?.replace("\u0026", "&")
+                    }
+                    it.adaptiveFormats?.forEach { format ->
+                        format.url = format.url?.replace("\u0026", "&")
+                    }
+                }
+
+                return videoInfo!!
+            }
+
+            val playerJsUrl = extractor.extractPlayerJsUrl()
+
+            val jsExtractor = JSExtractor(playerJsUrl)
+
+            val decodeOperations = jsExtractor.getDecodeOperationsFromPlayerJS()
+
+            decoderClient = DecoderClient()
+            videoInfo!!.streamingData.let {
+                it.mixedFormats?.forEach { format ->
+                    format.url = decodeUrl(
+                        format.signatureCipher!!,
+                        decodeOperations
+                    )
+                }
+                it.adaptiveFormats?.forEach { format ->
+                    format.url = decodeUrl(
+                        format.signatureCipher!!,
+                        decodeOperations
+                    )
+                }
+            }
+
+            return videoInfo!!
+
+        } catch (exp: Exception) {
+            throw Exception("YouDownloader : ${exp.message!!}")
+        }
+    }
+
     private fun areVideoSourcesEncoded() =
         videoInfo!!.streamingData.mixedFormats?.first()?.url == null || videoInfo!!.streamingData.adaptiveFormats?.first()
             ?.url == null
