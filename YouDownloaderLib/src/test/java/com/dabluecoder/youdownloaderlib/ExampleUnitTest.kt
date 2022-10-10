@@ -19,25 +19,15 @@ class ExampleUnitTest {
     @Test
     fun extractPage() {
 
-        val client = YouClient()
-       client.videoUrl = "https://www.youtube.com/watch?v=VDvr08sCPOc"
-//        client.videoUrl = "ggg"
-//        client.videoUrl = "https://www.youtube.com/watch?v=SrBLTMs71x0&t=2s"
-        client.getVideoInfo (object : OnVideoInfoListener{
-            override fun onSuccess(videoInfo: VideoResponse) {
-                videoInfo.streamingData.adaptiveFormats?.forEach{
-                    println("video = ${it.qualityLabel}")
-                    println("url = ${it.url}")
-                    println("*****************************************************************************************")
-                }
-            }
+        val client = YouClient("https://www.youtube.com/watch?v=VDvr08sCPOc")
 
-            override fun onError(message: String) {
-                println("Error : $message")
-            }
+        println(client.getVideoTitle())
 
-        })
+        val vidResp = client.getVideoAllData()
 
+        vidResp.streamingData.mixedFormats!!.forEach {
+            println(it.url!!)
+        }
 
 //        val decoder = DecoderClient()
 //        val operations = mutableListOf(

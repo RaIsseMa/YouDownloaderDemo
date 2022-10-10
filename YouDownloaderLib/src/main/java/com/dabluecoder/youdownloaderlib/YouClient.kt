@@ -1,87 +1,38 @@
 package com.dabluecoder.youdownloaderlib
 
-import android.text.Html
 import com.dabluecoder.youdownloaderlib.decoders.DecodeOperation
 import com.dabluecoder.youdownloaderlib.decoders.DecoderClient
 import com.dabluecoder.youdownloaderlib.extractor.HtmlPageExtractor
 import com.dabluecoder.youdownloaderlib.extractor.JSExtractor
 import com.dabluecoder.youdownloaderlib.pojoclasses.VideoResponse
 
-
-class YouClient {
+class YouClient(private val videoUrl : String) {
 
     private var videoInfo: VideoResponse? = null
-    private var listener: OnVideoInfoListener? = null
     private var decoderClient : DecoderClient? = null
-    var videoUrl = ""
+    private var extractor : HtmlPageExtractor? = null
 
-    fun getVideoInfo(listener: OnVideoInfoListener) {
-
-        this.listener = listener
-
-        if (videoUrl.isEmpty()) {
-            this.listener?.onError("Video url is undefined")
-            return
+    fun getVideoTitle(): String{
+        if(videoInfo == null){
+            loadVideoData()
+            return videoInfo!!.videoDetails.title
         }
-
-        try {
-            val extractor = HtmlPageExtractor(videoUrl)
-
-            videoInfo = extractor.extractVideoResponseJson()
-
-            if (!areVideoSourcesEncoded()) {
-
-                videoInfo!!.streamingData.let {
-                    it.mixedFormats?.forEach { format ->
-                        format.url = format.url?.replace("\u0026", "&")
-                    }
-                    it.adaptiveFormats?.forEach { format ->
-                        format.url = format.url?.replace("\u0026", "&")
-                    }
-                }
-                this.listener?.onSuccess(videoInfo!!)
-                return
-            }
-
-            val playerJsUrl = extractor.extractPlayerJsUrl()
-
-            val jsExtractor = JSExtractor(playerJsUrl)
-
-            val decodeOperations = jsExtractor.getDecodeOperationsFromPlayerJS()
-
-            decoderClient = DecoderClient()
-            videoInfo!!.streamingData.let {
-                it.mixedFormats?.forEach { format ->
-                    format.url = decodeUrl(
-                        format.signatureCipher!!,
-                        decodeOperations
-                    )
-                }
-                it.adaptiveFormats?.forEach { format ->
-                    format.url = decodeUrl(
-                        format.signatureCipher!!,
-                        decodeOperations
-                    )
-                }
-            }
-
-            this.listener?.onSuccess(videoInfo!!)
-
-        } catch (exp: Exception) {
-            this.listener?.onError("YouDownloader : ${exp.message!!}")
-        }
-
+        return videoInfo!!.videoDetails.title
     }
 
-    fun getVideoInfo() : VideoResponse {
-        if (videoUrl.isEmpty()) {
-            throw Exception("Video url is undefined")
+    fun getVideoThumbnail(): String{
+        if(videoInfo == null){
+            loadVideoData()
+            return videoInfo!!.videoDetails.thumbnail.thumbnails.first().url
         }
+        return videoInfo!!.videoDetails.thumbnail.thumbnails.first().url
+    }
 
-        try {
-            val extractor = HtmlPageExtractor(videoUrl)
+    fun getVideoAllData(): VideoResponse{
+        try{
 
-            videoInfo = extractor.extractVideoResponseJson()
+            if(videoInfo == null)
+                loadVideoData()
 
             if (!areVideoSourcesEncoded()) {
 
@@ -97,7 +48,7 @@ class YouClient {
                 return videoInfo!!
             }
 
-            val playerJsUrl = extractor.extractPlayerJsUrl()
+            val playerJsUrl = extractor!!.extractPlayerJsUrl()
 
             val jsExtractor = JSExtractor(playerJsUrl)
 
@@ -122,7 +73,17 @@ class YouClient {
             return videoInfo!!
 
         } catch (exp: Exception) {
-            throw Exception("YouDownloader : ${exp.message!!}")
+            throw Exception("YouDownloaderLibException : ${exp.message!!}")
+        }
+    }
+
+    private fun loadVideoData() {
+        try {
+            extractor = HtmlPageExtractor(videoUrl)
+            videoInfo = extractor!!.extractVideoResponseJson()
+
+        } catch (ex: Exception) {
+            throw Exception("YouDownloaderLibException : ${ex.message}")
         }
     }
 
