@@ -25,29 +25,12 @@ class HtmlPageExtractor(private val videoUrl : String) {
 
     private var doc: Document? = null
 
-    private fun extractVideoIdFromUrl(): String {
-
-        return try {
-            val videoId = videoUrl.substring(
-                videoUrl.indexOfFirst { ch -> ch == '=' } + 1,
-                videoUrl.indexOfFirst { ch -> ch == '=' } + 12
-            )
-
-            if (videoId.length != 11 || videoId.isEmpty()) {
-                throw InvalidUrlException("video url is not valid, failed to extract video id from url")
-            }
-            videoId
-        }catch (ex : Exception){
-            throw InvalidUrlException("video url is not valid, failed to extract video id from url")
-        }
-    }
-
     private fun loadPage() {
         if(Looper.myLooper() == Looper.getMainLooper())
             throw Exception("The code should not run in main thread")
 
         doc = Jsoup
-            .connect("${Constants.REQUEST_PAGE_URL}${extractVideoIdFromUrl()}${Constants.REQUEST_PAGE_PARAMETERS}")
+            .connect(videoUrl)
             .userAgent(Constants.USER_AGENT)
             .get()
 
