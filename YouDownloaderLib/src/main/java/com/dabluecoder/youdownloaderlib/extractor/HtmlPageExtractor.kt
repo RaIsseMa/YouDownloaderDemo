@@ -26,12 +26,13 @@ class HtmlPageExtractor(private val videoUrl : String) {
     private var doc: Document? = null
 
     private fun loadPage() {
-        if(Looper.myLooper() == Looper.getMainLooper())
-            throw Exception("The code should not run in main thread")
+//        if(Looper.myLooper() == Looper.getMainLooper())
+//            throw Exception("The code can not run in the main thread")
 
         doc = Jsoup
             .connect(videoUrl)
             .userAgent(Constants.USER_AGENT)
+            .timeout(5000)
             .get()
 
     }

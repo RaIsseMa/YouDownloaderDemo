@@ -19,7 +19,7 @@ class ExampleUnitTest {
     @Test
     fun extractPage() {
 
-        val client = YouClient("https://www.youtube.com/watch?v=VDvr08sCPOc")
+        val client = YouClient("https://www.youtube.com/watch?v=Q3IkQxzpFfw")
 
         println(client.getVideoTitle())
 

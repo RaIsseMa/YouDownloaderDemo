@@ -11,6 +11,10 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
+
+    private val TAG = "MainActivity"
+    private val url = "https://www.youtube.com/watch?v=Q3IkQxzpFfw"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -18,27 +22,14 @@ class MainActivity : AppCompatActivity() {
         val btn = findViewById<Button>(R.id.btn)
 
         btn.setOnClickListener {
-            val client = YouClient()
-            client.videoUrl = "https://www.youtube.com/watch?v=pl5uV4NlaDg"
-//        client.videoUrl = "ggg"
-//        client.videoUrl = "https://www.youtube.com/watch?v=SrBLTMs71x0&t=2s"
-            client.getVideoInfo (object : OnVideoInfoListener {
-                override fun onSuccess(videoInfo: VideoResponse) {
-                    videoInfo.streamingData.mixedFormats?.forEach{
-                        println("video = ${it.qualityLabel}")
-                        println("url = ${it.url}")
-                        println("*****************************************************************************************")
-                    }
-                }
-
-                override fun onError(message: String) {
-                    println("Error : $message")
-                }
-
-            })
-//            GlobalScope.launch(Dispatchers.IO){
-//
-//            }
+            GlobalScope.launch(Dispatchers.IO){
+                val youClient = YouClient(url)
+                println("$TAG initialize client $url")
+                val videoTitle = youClient.getVideoTitle()
+                println("$TAG get video title $videoTitle")
+                val videoThumbnail = youClient.getVideoThumbnail()
+                println("$TAG get video thumbnail $videoThumbnail")
+            }
         }
 
     }
