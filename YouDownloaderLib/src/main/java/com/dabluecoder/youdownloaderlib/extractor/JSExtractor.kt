@@ -12,6 +12,8 @@ import javax.net.ssl.HttpsURLConnection
 
 class JSExtractor(private val playerUrl : String) {
 
+    private var jsPlayerCode : String? = null
+
     fun getDecodeOperationsFromPlayerJS(): List<DecodeOperation> {
 
         if(playerUrl.isEmpty())
@@ -29,15 +31,15 @@ class JSExtractor(private val playerUrl : String) {
 
         val respCode = connection.responseCode
         if(respCode == HttpsURLConnection.HTTP_OK){
-            val response = connection.inputStream.bufferedReader().use { it.readText() }
-            return extractDecodeFunctions(response)
+            jsPlayerCode = connection.inputStream.bufferedReader().use { it.readText() }
+            return extractDecodeFunctions()
         }
         throw Exception(connection.responseMessage)
 
     }
 
-    private fun extractDecodeFunctions(input : String):List<DecodeOperation>{
 
+    private fun extractDecodeFunctions():List<DecodeOperation>{
 
         //To decode a signature cipher youtube use 3 functions and 1 main function that calls
         //the 3 functions
@@ -47,20 +49,20 @@ class JSExtractor(private val playerUrl : String) {
         //Last we extract the order of those functions and it's code to define the decode operation we should
         //use and we extract the index that passes as a parameter.
 
-        val startIndexOfDecodeFunction = input.indexOf("a=a.split(\"\");")
-        val subInput = input.substring(startIndexOfDecodeFunction)
+        val startIndexOfDecodeFunction = jsPlayerCode!!.indexOf("a=a.split(\"\");")
+        val subInput = jsPlayerCode!!.substring(startIndexOfDecodeFunction)
         val endIndexOfDecodeFunction = subInput.indexOf("}")
-        val decodeFunction = input.substring(startIndexOfDecodeFunction,startIndexOfDecodeFunction+endIndexOfDecodeFunction)
+        val decodeFunction = jsPlayerCode!!.substring(startIndexOfDecodeFunction,startIndexOfDecodeFunction+endIndexOfDecodeFunction)
 
         val objectName = decodeFunction.substring(
             decodeFunction.indexOf(";")+1,
             decodeFunction.indexOf(";")+3
         )
 
-        val startIndexOfDecodeFunctionDefinitions = input.indexOf("$objectName={")
-        val subInputDefinitions = input.substring(startIndexOfDecodeFunctionDefinitions)
+        val startIndexOfDecodeFunctionDefinitions = jsPlayerCode!!.indexOf("$objectName={")
+        val subInputDefinitions = jsPlayerCode!!.substring(startIndexOfDecodeFunctionDefinitions)
         val endIndexOfDecodeFunctionDefinitions = subInputDefinitions.indexOf("}};")
-        val decodeFunctionsDefinition = input.substring(startIndexOfDecodeFunctionDefinitions,startIndexOfDecodeFunctionDefinitions+endIndexOfDecodeFunctionDefinitions+1)
+        val decodeFunctionsDefinition = jsPlayerCode!!.substring(startIndexOfDecodeFunctionDefinitions,startIndexOfDecodeFunctionDefinitions+endIndexOfDecodeFunctionDefinitions+1)
 
         val decodeOperations = mutableListOf<DecodeOperation>()
         val separatedFunctions = decodeFunction.split(";")
@@ -95,4 +97,21 @@ class JSExtractor(private val playerUrl : String) {
 
         return decodeOperations.toList()
     }
+
+    fun extractNCode(): String? {
+        //extract functions of transforming parameter N
+        //currently this function is named pla
+
+        return try {
+            val startIndexOfFunction = jsPlayerCode!!.indexOf("pla=function(a)")
+            val subInp = jsPlayerCode!!.substring(startIndexOfFunction + "pla=".length)
+            val endIndexOfFunction = subInp.indexOf("return b.join(\"\")};")
+            subInp.substring(0, endIndexOfFunction + "return b.join(\"\")};".length)
+        }catch (ex : Exception){
+            println("Error occurred while extracting n functions : ${ex.printStackTrace()}")
+            null
+        }
+
+    }
+
 }

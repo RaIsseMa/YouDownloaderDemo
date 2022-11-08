@@ -1,7 +1,6 @@
 package com.dabluecoder.youdownloaderlib.extractor
 
 import android.os.Looper
-import com.dabluecoder.youdownloaderlib.exceptions.InvalidUrlException
 import com.dabluecoder.youdownloaderlib.exceptions.NullDocumentException
 import com.dabluecoder.youdownloaderlib.exceptions.NullVideoInfoException
 import com.dabluecoder.youdownloaderlib.exceptions.PlayerJsException
@@ -26,13 +25,13 @@ class HtmlPageExtractor(private val videoUrl : String) {
     private var doc: Document? = null
 
     private fun loadPage() {
-//        if(Looper.myLooper() == Looper.getMainLooper())
-//            throw Exception("The code can not run in the main thread")
+        if(Looper.myLooper() == Looper.getMainLooper())
+            throw Exception("The code can not run in the main thread")
 
         doc = Jsoup
             .connect(videoUrl)
             .userAgent(Constants.USER_AGENT)
-            .timeout(5000)
+            .timeout(6000)
             .get()
 
     }

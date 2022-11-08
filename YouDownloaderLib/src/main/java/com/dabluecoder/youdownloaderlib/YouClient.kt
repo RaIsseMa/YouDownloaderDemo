@@ -1,12 +1,13 @@
 package com.dabluecoder.youdownloaderlib
 
+import android.content.Context
 import com.dabluecoder.youdownloaderlib.decoders.DecodeOperation
 import com.dabluecoder.youdownloaderlib.decoders.DecoderClient
 import com.dabluecoder.youdownloaderlib.extractor.HtmlPageExtractor
 import com.dabluecoder.youdownloaderlib.extractor.JSExtractor
 import com.dabluecoder.youdownloaderlib.pojoclasses.VideoResponse
 
-class YouClient(private val videoUrl : String) {
+class YouClient(private val videoUrl : String,private val context: Context) {
 
     private var videoInfo: VideoResponse? = null
     private var decoderClient : DecoderClient? = null
@@ -28,7 +29,7 @@ class YouClient(private val videoUrl : String) {
         return videoInfo!!.videoDetails.thumbnail.thumbnails.first().url
     }
 
-    fun getVideoAllData(): VideoResponse{
+    suspend fun getVideoAllData(): VideoResponse{
         try{
 
             if(videoInfo == null)
@@ -53,19 +54,24 @@ class YouClient(private val videoUrl : String) {
             val jsExtractor = JSExtractor(playerJsUrl)
 
             val decodeOperations = jsExtractor.getDecodeOperationsFromPlayerJS()
+            val transformNFunctionCode = jsExtractor.extractNCode()
 
-            decoderClient = DecoderClient()
+            println("-------------------------------- $transformNFunctionCode")
+
+            decoderClient = DecoderClient(context)
             videoInfo!!.streamingData.let {
                 it.mixedFormats?.forEach { format ->
                     format.url = decodeUrl(
                         format.signatureCipher!!,
-                        decodeOperations
+                        decodeOperations,
+                        transformNFunctionCode
                     )
                 }
                 it.adaptiveFormats?.forEach { format ->
                     format.url = decodeUrl(
                         format.signatureCipher!!,
-                        decodeOperations
+                        decodeOperations,
+                        transformNFunctionCode
                     )
                 }
             }
@@ -91,10 +97,11 @@ class YouClient(private val videoUrl : String) {
         videoInfo!!.streamingData.mixedFormats?.first()?.url == null || videoInfo!!.streamingData.adaptiveFormats?.first()
             ?.url == null
 
-    private fun decodeUrl(signatureCipher : String,decodeOperations : List<DecodeOperation>) : String{
-        return decoderClient!!.decodeSignature(
+    private suspend fun decodeUrl(signatureCipher : String,decodeOperations : List<DecodeOperation>,nFunctionCode : String?) : String{
+        val decryptedUrl =  decoderClient!!.decodeSignature(
             signatureCipher,
             decodeOperations
         )
+        return decoderClient!!.decodeParameterN(decryptedUrl,nFunctionCode)
     }
 }
