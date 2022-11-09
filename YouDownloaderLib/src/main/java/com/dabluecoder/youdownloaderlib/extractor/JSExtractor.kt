@@ -15,27 +15,10 @@ class JSExtractor(private val playerUrl : String) {
     private var jsPlayerCode : String? = null
 
     fun getDecodeOperationsFromPlayerJS(): List<DecodeOperation> {
+        if(jsPlayerCode == null)
+            getPlayerCode()
 
-        if(playerUrl.isEmpty())
-            throw PlayerJsException("player url is undefined")
-
-        val url = URL("${Constants.REQUEST_PLAYER_BASE_URL}$playerUrl")
-        val connection = url.openConnection() as HttpsURLConnection
-
-        connection.let {
-            it.requestMethod = "GET"
-            it.setRequestProperty("User-Agent",Constants.USER_AGENT)
-            it.doInput = true
-            it.doOutput = false
-        }
-
-        val respCode = connection.responseCode
-        if(respCode == HttpsURLConnection.HTTP_OK){
-            jsPlayerCode = connection.inputStream.bufferedReader().use { it.readText() }
-            return extractDecodeFunctions()
-        }
-        throw Exception(connection.responseMessage)
-
+        return extractDecodeFunctions()
     }
 
 
@@ -102,16 +85,42 @@ class JSExtractor(private val playerUrl : String) {
         //extract functions of transforming parameter N
         //currently this function is named pla
 
+        if(jsPlayerCode == null)
+            getPlayerCode()
+
         return try {
             val startIndexOfFunction = jsPlayerCode!!.indexOf("pla=function(a)")
             val subInp = jsPlayerCode!!.substring(startIndexOfFunction + "pla=".length)
             val endIndexOfFunction = subInp.indexOf("return b.join(\"\")};")
-            subInp.substring(0, endIndexOfFunction + "return b.join(\"\")};".length)
+            subInp.substring(0, endIndexOfFunction + "return b.join(\"\")};".length-1)
         }catch (ex : Exception){
             println("Error occurred while extracting n functions : ${ex.printStackTrace()}")
             null
         }
 
+    }
+
+    private fun getPlayerCode(){
+
+        if(playerUrl.isEmpty())
+            throw PlayerJsException("player url is undefined")
+
+        val url = URL("${Constants.REQUEST_PLAYER_BASE_URL}$playerUrl")
+        val connection = url.openConnection() as HttpsURLConnection
+
+        connection.let {
+            it.requestMethod = "GET"
+            it.setRequestProperty("User-Agent",Constants.USER_AGENT)
+            it.doInput = true
+            it.doOutput = false
+        }
+
+        val respCode = connection.responseCode
+        if(respCode == HttpsURLConnection.HTTP_OK){
+            jsPlayerCode = connection.inputStream.bufferedReader().use { it.readText() }
+            return
+        }
+        throw Exception(connection.responseMessage)
     }
 
 }

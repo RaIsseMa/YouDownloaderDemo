@@ -1,8 +1,5 @@
 package com.dabluecoder.youdownloaderlib.pojoclasses
 
-import com.google.gson.annotations.SerializedName
-
-
 data class Formats(
     val mimeType: String,
     val width: Int,

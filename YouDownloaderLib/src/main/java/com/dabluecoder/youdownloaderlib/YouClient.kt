@@ -35,30 +35,30 @@ class YouClient(private val videoUrl : String,private val context: Context) {
             if(videoInfo == null)
                 loadVideoData()
 
+            val playerJsUrl = extractor!!.extractPlayerJsUrl()
+
+            val jsExtractor = JSExtractor(playerJsUrl)
+
+            decoderClient = DecoderClient(context)
+
             if (!areVideoSourcesEncoded()) {
+                val transformNFunctionCode = jsExtractor.extractNCode()
 
                 videoInfo!!.streamingData.let {
                     it.mixedFormats?.forEach { format ->
-                        format.url = format.url?.replace("\u0026", "&")
+                        format.url = decodeOnlyParameterN(format.url?.replace("\u0026", "&")!!,transformNFunctionCode)
                     }
                     it.adaptiveFormats?.forEach { format ->
-                        format.url = format.url?.replace("\u0026", "&")
+                        format.url = decodeOnlyParameterN(format.url?.replace("\u0026", "&")!!,transformNFunctionCode)
                     }
                 }
 
                 return videoInfo!!
             }
 
-            val playerJsUrl = extractor!!.extractPlayerJsUrl()
-
-            val jsExtractor = JSExtractor(playerJsUrl)
-
             val decodeOperations = jsExtractor.getDecodeOperationsFromPlayerJS()
             val transformNFunctionCode = jsExtractor.extractNCode()
 
-            println("-------------------------------- $transformNFunctionCode")
-
-            decoderClient = DecoderClient(context)
             videoInfo!!.streamingData.let {
                 it.mixedFormats?.forEach { format ->
                     format.url = decodeUrl(
@@ -103,5 +103,9 @@ class YouClient(private val videoUrl : String,private val context: Context) {
             decodeOperations
         )
         return decoderClient!!.decodeParameterN(decryptedUrl,nFunctionCode)
+    }
+
+    private suspend fun decodeOnlyParameterN(url : String,nFunctionCode: String?): String{
+        return decoderClient!!.decodeParameterN(url,nFunctionCode)
     }
 }
