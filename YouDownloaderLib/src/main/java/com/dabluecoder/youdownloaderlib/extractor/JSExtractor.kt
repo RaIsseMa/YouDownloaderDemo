@@ -89,7 +89,9 @@ class JSExtractor(private val playerUrl : String) {
             getPlayerCode()
 
         return try {
-            val startIndexOfFunction = jsPlayerCode!!.indexOf("pla=function(a)")
+            val startOfFunction = Regex("(?<=)[a-z]{3}=function\\(a\\)\\{var b=a\\.split").find(jsPlayerCode!!)?.value  ?: throw Exception("Error to extract name of n function")
+            println("------------------------------------ start of function : $startOfFunction")
+            val startIndexOfFunction = jsPlayerCode!!.indexOf(startOfFunction)
             val subInp = jsPlayerCode!!.substring(startIndexOfFunction + "pla=".length)
             val endIndexOfFunction = subInp.indexOf("return b.join(\"\")};")
             subInp.substring(0, endIndexOfFunction + "return b.join(\"\")};".length-1)

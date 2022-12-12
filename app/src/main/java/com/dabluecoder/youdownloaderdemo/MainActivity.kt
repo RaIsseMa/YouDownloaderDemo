@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
 
     private val TAG = "MainActivity"
-    private val url = "https://www.youtube.com/shorts/P0bd7NRQQfo"
+    private val url = "https://www.youtube.com/watch?v=mHtEDgY6IMw&list=RDMMmHtEDgY6IMw&start_radio=1&ab_channel=RUBIO-OFFICIAL"
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
             GlobalScope.launch(Dispatchers.IO){
                 val youClient = YouClient(url,this@MainActivity)
                 val videoInfo = youClient.getVideoAllData()
-                videoInfo.streamingData.mixedFormats?.forEach {
+                videoInfo.streamingData.adaptiveFormats?.forEach {
                     println("--------------------------- url : ${it.url}")
                 }
             }

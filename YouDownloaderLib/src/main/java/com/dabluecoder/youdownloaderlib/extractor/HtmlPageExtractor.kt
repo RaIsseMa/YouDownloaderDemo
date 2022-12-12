@@ -83,9 +83,11 @@ class HtmlPageExtractor(private val videoUrl : String) {
 
         doc?.let { contentPage ->
 
+            //println("----------------------------------------- \n\n\n\n $contentPage \n\n\n\n\n")
+
             val head = contentPage.getElementsByTag("head")
 
-            val player = head[0].getElementsByTag("script")
+            val player = contentPage.getElementsByTag("script")
                 .filter { element ->
                     element.attr("src").let {
                         it.contains("player_ias") && it.endsWith(".js")
@@ -97,6 +99,7 @@ class HtmlPageExtractor(private val videoUrl : String) {
             if(player.isEmpty())
                 throw PlayerJsException("Error to extract player url from html document, check if the url is a valid video url")
 
+            println("---------------------- player : $player")
             return player
 
         }

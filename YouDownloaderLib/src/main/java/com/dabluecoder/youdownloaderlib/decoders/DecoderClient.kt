@@ -13,6 +13,8 @@ import java.net.URLDecoder
 
 class DecoderClient(private val context: Context) {
 
+    private val decodedN = mutableMapOf<String,String>()
+
 
     fun decodeSignature(signature : String,decodeOperations : List<DecodeOperation>):String{
         val signatureQuery = signature.split('\u0026')
@@ -34,9 +36,14 @@ class DecoderClient(private val context: Context) {
         if( n== null || n.isEmpty() || functionCode == null)
             return url
         var newN = "unKnown"
+        if(decodedN.contains(n)){
+            return url.replace(n,decodedN[n]!!)
+        }
         withContext(Dispatchers.Main){
             val wbView = WebView(context)
             wbView.settings.javaScriptEnabled = true
+
+            //println("-------------------------------- function code : \n\n\n $functionCode \n\n\n")
 
             wbView.evaluateJavascript("($functionCode) ('$n');") { transformedN ->
                 newN = transformedN?.replace("\"","") ?: ""
@@ -45,12 +52,14 @@ class DecoderClient(private val context: Context) {
 
         while(true){
             delay(150)
-            if(newN != "unknown"){
+            if(newN != "unKnown"){
                 break
             }
         }
         if(newN == "")
             return url
+        println("----------------------------- old n : $n/ new n : $newN")
+        decodedN[n] = newN
         return url.replace(n,newN)
     }
 

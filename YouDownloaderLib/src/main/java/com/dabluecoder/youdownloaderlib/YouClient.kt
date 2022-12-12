@@ -13,6 +13,8 @@ class YouClient(private val videoUrl : String,private val context: Context) {
     private var decoderClient : DecoderClient? = null
     private var extractor : HtmlPageExtractor? = null
 
+    var count = 0
+
     fun getVideoTitle(): String{
         if(videoInfo == null){
             loadVideoData()
@@ -30,7 +32,7 @@ class YouClient(private val videoUrl : String,private val context: Context) {
     }
 
     suspend fun getVideoAllData(): VideoResponse{
-        try{
+        //try{
 
             if(videoInfo == null)
                 loadVideoData()
@@ -43,7 +45,7 @@ class YouClient(private val videoUrl : String,private val context: Context) {
 
             if (!areVideoSourcesEncoded()) {
                 val transformNFunctionCode = jsExtractor.extractNCode()
-
+                println("------------------ videos is decrypted")
                 videoInfo!!.streamingData.let {
                     it.mixedFormats?.forEach { format ->
                         format.url = decodeOnlyParameterN(format.url?.replace("\u0026", "&")!!,transformNFunctionCode)
@@ -55,6 +57,7 @@ class YouClient(private val videoUrl : String,private val context: Context) {
 
                 return videoInfo!!
             }
+            println("------------------ videos is encrypted")
 
             val decodeOperations = jsExtractor.getDecodeOperationsFromPlayerJS()
             val transformNFunctionCode = jsExtractor.extractNCode()
@@ -78,9 +81,9 @@ class YouClient(private val videoUrl : String,private val context: Context) {
 
             return videoInfo!!
 
-        } catch (exp: Exception) {
+        /*} catch (exp: Exception) {
             throw Exception("YouDownloaderLibException : ${exp.message!!}")
-        }
+        }*/
     }
 
     private fun loadVideoData() {
@@ -102,7 +105,11 @@ class YouClient(private val videoUrl : String,private val context: Context) {
             signatureCipher,
             decodeOperations
         )
-        return decoderClient!!.decodeParameterN(decryptedUrl,nFunctionCode)
+        if(count < 1){
+            count++
+            return decoderClient!!.decodeParameterN(decryptedUrl,nFunctionCode)
+        }
+        return decryptedUrl
     }
 
     private suspend fun decodeOnlyParameterN(url : String,nFunctionCode: String?): String{
