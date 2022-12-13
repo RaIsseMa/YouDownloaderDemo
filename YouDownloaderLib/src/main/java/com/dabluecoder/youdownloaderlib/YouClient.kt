@@ -13,26 +13,9 @@ class YouClient(private val videoUrl : String,private val context: Context) {
     private var decoderClient : DecoderClient? = null
     private var extractor : HtmlPageExtractor? = null
 
-    var count = 0
+    suspend fun getVideoData(): VideoResponse{
 
-    fun getVideoTitle(): String{
-        if(videoInfo == null){
-            loadVideoData()
-            return videoInfo!!.videoDetails.title
-        }
-        return videoInfo!!.videoDetails.title
-    }
-
-    fun getVideoThumbnail(): String{
-        if(videoInfo == null){
-            loadVideoData()
-            return videoInfo!!.videoDetails.thumbnail.thumbnails.first().url
-        }
-        return videoInfo!!.videoDetails.thumbnail.thumbnails.first().url
-    }
-
-    suspend fun getVideoAllData(): VideoResponse{
-        //try{
+        try{
 
             if(videoInfo == null)
                 loadVideoData()
@@ -45,7 +28,7 @@ class YouClient(private val videoUrl : String,private val context: Context) {
 
             if (!areVideoSourcesEncoded()) {
                 val transformNFunctionCode = jsExtractor.extractNCode()
-                println("------------------ videos is decrypted")
+
                 videoInfo!!.streamingData.let {
                     it.mixedFormats?.forEach { format ->
                         format.url = decodeOnlyParameterN(format.url?.replace("\u0026", "&")!!,transformNFunctionCode)
@@ -57,7 +40,6 @@ class YouClient(private val videoUrl : String,private val context: Context) {
 
                 return videoInfo!!
             }
-            println("------------------ videos is encrypted")
 
             val decodeOperations = jsExtractor.getDecodeOperationsFromPlayerJS()
             val transformNFunctionCode = jsExtractor.extractNCode()
@@ -81,9 +63,9 @@ class YouClient(private val videoUrl : String,private val context: Context) {
 
             return videoInfo!!
 
-        /*} catch (exp: Exception) {
+        } catch (exp: Exception) {
             throw Exception("YouDownloaderLibException : ${exp.message!!}")
-        }*/
+        }
     }
 
     private fun loadVideoData() {
@@ -105,11 +87,9 @@ class YouClient(private val videoUrl : String,private val context: Context) {
             signatureCipher,
             decodeOperations
         )
-        if(count < 1){
-            count++
-            return decoderClient!!.decodeParameterN(decryptedUrl,nFunctionCode)
-        }
-        return decryptedUrl
+
+        return decoderClient!!.decodeParameterN(decryptedUrl,nFunctionCode)
+
     }
 
     private suspend fun decodeOnlyParameterN(url : String,nFunctionCode: String?): String{

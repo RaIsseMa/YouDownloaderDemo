@@ -43,8 +43,6 @@ class DecoderClient(private val context: Context) {
             val wbView = WebView(context)
             wbView.settings.javaScriptEnabled = true
 
-            //println("-------------------------------- function code : \n\n\n $functionCode \n\n\n")
-
             wbView.evaluateJavascript("($functionCode) ('$n');") { transformedN ->
                 newN = transformedN?.replace("\"","") ?: ""
             }
@@ -58,7 +56,7 @@ class DecoderClient(private val context: Context) {
         }
         if(newN == "")
             return url
-        println("----------------------------- old n : $n/ new n : $newN")
+
         decodedN[n] = newN
         return url.replace(n,newN)
     }

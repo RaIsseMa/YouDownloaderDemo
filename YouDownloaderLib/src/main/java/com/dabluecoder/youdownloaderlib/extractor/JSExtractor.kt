@@ -14,7 +14,14 @@ class JSExtractor(private val playerUrl : String) {
 
     private var jsPlayerCode : String? = null
 
+    private val decodeFunctionsCache = mutableMapOf<String,List<DecodeOperation>>()
+    private val nParameterDecodeFunctions = mutableMapOf<String,String>()
+
     fun getDecodeOperationsFromPlayerJS(): List<DecodeOperation> {
+
+        if(decodeFunctionsCache.contains(playerUrl))
+            return decodeFunctionsCache[playerUrl]!!
+
         if(jsPlayerCode == null)
             getPlayerCode()
 
@@ -78,23 +85,28 @@ class JSExtractor(private val playerUrl : String) {
             }
         }
 
+        decodeFunctionsCache[playerUrl] = decodeOperations.toList()
         return decodeOperations.toList()
     }
 
     fun extractNCode(): String? {
         //extract functions of transforming parameter N
-        //currently this function is named pla
+
+        if(nParameterDecodeFunctions.contains(playerUrl))
+            return nParameterDecodeFunctions[playerUrl]
 
         if(jsPlayerCode == null)
             getPlayerCode()
 
         return try {
             val startOfFunction = Regex("(?<=)[a-z]{3}=function\\(a\\)\\{var b=a\\.split").find(jsPlayerCode!!)?.value  ?: throw Exception("Error to extract name of n function")
-            println("------------------------------------ start of function : $startOfFunction")
+
             val startIndexOfFunction = jsPlayerCode!!.indexOf(startOfFunction)
             val subInp = jsPlayerCode!!.substring(startIndexOfFunction + "pla=".length)
             val endIndexOfFunction = subInp.indexOf("return b.join(\"\")};")
-            subInp.substring(0, endIndexOfFunction + "return b.join(\"\")};".length-1)
+            val decodeFunction = subInp.substring(0, endIndexOfFunction + "return b.join(\"\")};".length-1)
+            nParameterDecodeFunctions[playerUrl] = decodeFunction
+            decodeFunction
         }catch (ex : Exception){
             println("Error occurred while extracting n functions : ${ex.printStackTrace()}")
             null
