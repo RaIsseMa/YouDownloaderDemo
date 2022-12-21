@@ -95,6 +95,7 @@ class HtmlPageExtractor(private val videoUrl : String) {
             if(player.isEmpty())
                 throw PlayerJsException("Error to extract player url from html document, check if the url is a valid video url")
 
+            println("YouDownLib : js player = $player")
             return player
 
         }
