@@ -15,6 +15,8 @@ class DecoderClient(private val context: Context) {
 
     private val decodedN = mutableMapOf<String,String>()
 
+    private val TAG = "YouDownloadDemo-DECODER_CLIENT_CLASS"
+
 
     fun decodeSignature(signature : String,decodeOperations : List<DecodeOperation>):String{
         val signatureQuery = signature.split('\u0026')
@@ -33,8 +35,10 @@ class DecoderClient(private val context: Context) {
     suspend fun decodeParameterN(url : String,functionCode : String?) : String{
         val uri = Uri.parse(url)
         val n = uri.getQueryParameter("n")
-        if( n== null || n.isEmpty() || functionCode == null)
+        if( n== null || n.isEmpty() || functionCode == null){
+            println("$TAG: parameter n is null or function code is null")
             return url
+        }
         var newN = "unKnown"
         if(decodedN.contains(n)){
             return url.replace(n,decodedN[n]!!)
@@ -54,10 +58,12 @@ class DecoderClient(private val context: Context) {
                 break
             }
         }
-        if(newN == "")
+        if(newN == "") {
+            println("$TAG: Could not decode parameter n")
             return url
-
+        }
         decodedN[n] = newN
+        println("$TAG: parameter n decoded successfully")
         return url.replace(n,newN)
     }
 
