@@ -1,5 +1,6 @@
 package com.dabluecoder.youdownloaderlib.extractor
 
+import android.util.Log
 import com.dabluecoder.youdownloaderlib.decoders.DecodeOperation
 import com.dabluecoder.youdownloaderlib.decoders.ReverseOperation
 import com.dabluecoder.youdownloaderlib.decoders.SliceOperation
@@ -7,6 +8,7 @@ import com.dabluecoder.youdownloaderlib.decoders.SwapOperation
 import com.dabluecoder.youdownloaderlib.exceptions.DecodeSignatureCipherException
 import com.dabluecoder.youdownloaderlib.exceptions.PlayerJsException
 import com.dabluecoder.youdownloaderlib.others.Constants
+import com.dabluecoder.youdownloaderlib.others.Constants.MAIN_TAG
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 
@@ -85,6 +87,7 @@ class JSExtractor(private val playerUrl : String) {
             }
         }
 
+        Log.i(MAIN_TAG,"extracted decode functions for signature successfully")
         decodeFunctionsCache[playerUrl] = decodeOperations.toList()
         return decodeOperations.toList()
     }
@@ -106,9 +109,10 @@ class JSExtractor(private val playerUrl : String) {
             val endIndexOfFunction = subInp.indexOf("return b.join(\"\")};")
             val decodeFunction = subInp.substring(0, endIndexOfFunction + "return b.join(\"\")};".length-1)
             nParameterDecodeFunctions[playerUrl] = decodeFunction
+            Log.i(MAIN_TAG,"extracted code of parameter n functions successfully")
             decodeFunction
         }catch (ex : Exception){
-            println("Error occurred while extracting n functions : ${ex.printStackTrace()}")
+            Log.e(MAIN_TAG,"An error occurred while extracting code of parameter n functions \n ${ex.printStackTrace()}")
             null
         }
 

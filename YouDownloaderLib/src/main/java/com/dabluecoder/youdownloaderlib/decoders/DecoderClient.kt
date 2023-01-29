@@ -3,7 +3,9 @@ package com.dabluecoder.youdownloaderlib.decoders
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import android.webkit.WebView
+import com.dabluecoder.youdownloaderlib.others.Constants.MAIN_TAG
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -14,9 +16,6 @@ import java.net.URLDecoder
 class DecoderClient(private val context: Context) {
 
     private val decodedN = mutableMapOf<String,String>()
-
-    private val TAG = "YouDownloadDemo-DECODER_CLIENT_CLASS"
-
 
     fun decodeSignature(signature : String,decodeOperations : List<DecodeOperation>):String{
         val signatureQuery = signature.split('\u0026')
@@ -36,7 +35,7 @@ class DecoderClient(private val context: Context) {
         val uri = Uri.parse(url)
         val n = uri.getQueryParameter("n")
         if( n== null || n.isEmpty() || functionCode == null){
-            println("$TAG: parameter n is null or function code is null")
+            Log.w(MAIN_TAG,"parameter n is null or function code is null")
             return url
         }
         var newN = "unKnown"
@@ -59,11 +58,11 @@ class DecoderClient(private val context: Context) {
             }
         }
         if(newN == "") {
-            println("$TAG: Could not decode parameter n")
+            Log.w(MAIN_TAG,"could not decode parameter n")
             return url
         }
         decodedN[n] = newN
-        println("$TAG: parameter n decoded successfully")
+        Log.i(MAIN_TAG,"parameter n decoded successfully")
         return url.replace(n,newN)
     }
 

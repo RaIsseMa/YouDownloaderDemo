@@ -1,10 +1,12 @@
 package com.dabluecoder.youdownloaderlib
 
 import android.content.Context
+import android.util.Log
 import com.dabluecoder.youdownloaderlib.decoders.DecodeOperation
 import com.dabluecoder.youdownloaderlib.decoders.DecoderClient
 import com.dabluecoder.youdownloaderlib.extractor.HtmlPageExtractor
 import com.dabluecoder.youdownloaderlib.extractor.JSExtractor
+import com.dabluecoder.youdownloaderlib.others.Constants.MAIN_TAG
 import com.dabluecoder.youdownloaderlib.pojoclasses.VideoResponse
 
 class YouClient(private val videoUrl : String,private val context: Context) {
@@ -27,6 +29,7 @@ class YouClient(private val videoUrl : String,private val context: Context) {
             decoderClient = DecoderClient(context)
 
             if (!areVideoSourcesEncoded()) {
+                Log.i(MAIN_TAG,"video url doesn't need to decode signature cipher")
                 val transformNFunctionCode = jsExtractor.extractNCode()
 
                 videoInfo!!.streamingData.let {
@@ -40,6 +43,7 @@ class YouClient(private val videoUrl : String,private val context: Context) {
 
                 return videoInfo!!
             }
+            Log.i(MAIN_TAG,"video url need to decode signature cipher")
 
             val decodeOperations = jsExtractor.getDecodeOperationsFromPlayerJS()
             val transformNFunctionCode = jsExtractor.extractNCode()

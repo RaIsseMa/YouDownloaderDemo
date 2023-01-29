@@ -1,10 +1,12 @@
 package com.dabluecoder.youdownloaderlib.extractor
 
 import android.os.Looper
+import android.util.Log
 import com.dabluecoder.youdownloaderlib.exceptions.NullDocumentException
 import com.dabluecoder.youdownloaderlib.exceptions.NullVideoInfoException
 import com.dabluecoder.youdownloaderlib.exceptions.PlayerJsException
 import com.dabluecoder.youdownloaderlib.others.Constants
+import com.dabluecoder.youdownloaderlib.others.Constants.MAIN_TAG
 import com.dabluecoder.youdownloaderlib.pojoclasses.VideoResponse
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -95,7 +97,7 @@ class HtmlPageExtractor(private val videoUrl : String) {
             if(player.isEmpty())
                 throw PlayerJsException("Error to extract player url from html document, check if the url is a valid video url")
 
-            println("YouDownLib : js player = $player")
+            Log.i(MAIN_TAG,"extracted js player successfully : $player")
             return player
 
         }
