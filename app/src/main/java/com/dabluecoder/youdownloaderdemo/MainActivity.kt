@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
-    private val url = "https://www.youtube.com/watch?v=oh_VhXIL3ag"
+    private val url = "https://www.youtube.com/watch?v=G1m5lrHBwWE"
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,14 +25,8 @@ class MainActivity : AppCompatActivity() {
                 val youClient = YouClient(url, this@MainActivity)
                 val videoInfo = youClient.getVideoData()
                 videoInfo.streamingData.adaptiveFormats?.forEach {
-                    if(it.qualityLabel != null && it.qualityLabel!!.contains("360")){
-                        println("--------------------------- mime type : ${it.mimeType}  video url : ${it.url}")
-                    }
-                    if(it.audioQuality != null){
-                        println("--------------------------- audio ${it.audioQuality} url : ${it.url}")
-                    }
+                    println("--------------------------- mime type : ${it.mimeType} ${it.qualityLabel} video url : ${it.url}")
                 }
-                println("--------------------------------------------")
                 videoInfo.streamingData.mixedFormats?.forEach {
                     println("--------------------------- mime type : ${it.mimeType}  video url : ${it.url}")
                 }

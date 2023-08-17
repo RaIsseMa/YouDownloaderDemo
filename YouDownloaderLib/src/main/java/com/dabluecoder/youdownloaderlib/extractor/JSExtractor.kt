@@ -41,20 +41,11 @@ class JSExtractor(private val playerUrl : String) {
         //Last we extract the order of those functions and it's code to define the decode operation we should
         //use and we extract the index that passes as a parameter.
 
-        val startIndexOfDecodeFunction = jsPlayerCode!!.indexOf("a=a.split(\"\");")
-        val subInput = jsPlayerCode!!.substring(startIndexOfDecodeFunction)
-        val endIndexOfDecodeFunction = subInput.indexOf("}")
-        val decodeFunction = jsPlayerCode!!.substring(startIndexOfDecodeFunction,startIndexOfDecodeFunction+endIndexOfDecodeFunction)
+        val decodeFunction = extractDecodeFunction()
 
-        val objectName = decodeFunction.substring(
-            decodeFunction.indexOf(";")+1,
-            decodeFunction.indexOf(";")+3
-        )
+        val objectName = extractObjectNameFromDecodeFunction(decodeFunction)
 
-        val startIndexOfDecodeFunctionDefinitions = jsPlayerCode!!.indexOf("$objectName={")
-        val subInputDefinitions = jsPlayerCode!!.substring(startIndexOfDecodeFunctionDefinitions)
-        val endIndexOfDecodeFunctionDefinitions = subInputDefinitions.indexOf("}};")
-        val decodeFunctionsDefinition = jsPlayerCode!!.substring(startIndexOfDecodeFunctionDefinitions,startIndexOfDecodeFunctionDefinitions+endIndexOfDecodeFunctionDefinitions+1)
+        val decodeFunctionsDefinition = extractDecodeFunctionsDefinition(objectName)
 
         val decodeOperations = mutableListOf<DecodeOperation>()
         val separatedFunctions = decodeFunction.split(";")
@@ -139,6 +130,30 @@ class JSExtractor(private val playerUrl : String) {
             return
         }
         throw Exception(connection.responseMessage)
+    }
+
+    private fun extractDecodeFunction(): String{
+        val startIndexOfDecodeFunction = jsPlayerCode!!.indexOf("a=a.split(\"\");")
+        val subInput = jsPlayerCode!!.substring(startIndexOfDecodeFunction)
+        val endIndexOfDecodeFunction = subInput.indexOf("}")
+
+        return jsPlayerCode!!.substring(startIndexOfDecodeFunction,startIndexOfDecodeFunction+endIndexOfDecodeFunction)
+
+    }
+
+    private fun extractObjectNameFromDecodeFunction(source : String): String {
+        val splitSource = source.split(";")
+
+        return splitSource[1].substring(0,splitSource[1].indexOf("."))
+    }
+
+    private fun extractDecodeFunctionsDefinition(objectName : String): String{
+        val startIndexOfDecodeFunctionDefinitions = jsPlayerCode!!.indexOf("$objectName={")
+        val subInputDefinitions = jsPlayerCode!!.substring(startIndexOfDecodeFunctionDefinitions)
+        val endIndexOfDecodeFunctionDefinitions = subInputDefinitions.indexOf("}};")
+
+        return jsPlayerCode!!.substring(startIndexOfDecodeFunctionDefinitions,startIndexOfDecodeFunctionDefinitions+endIndexOfDecodeFunctionDefinitions+1)
+
     }
 
 }
